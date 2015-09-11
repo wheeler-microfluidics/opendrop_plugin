@@ -47,6 +47,8 @@ from microdrop.app_context import get_app
 from microdrop.dmf_device import DeviceScaleNotSet
 from serial_device import SerialDevice, get_serial_ports
 
+from opendrop_board import OpenDropBoard
+
 
 # Ignore natural name warnings from PyTables [1].
 #
@@ -85,61 +87,6 @@ def check_frequency(element, state):
         )
     else:
         return True
-
-
-class OpenDropBoard(object):
-    '''
-    This is a dummy class defining the API required to work with the OpenDrop
-    plugin.
-    '''
-    
-    def __init__(self):
-        # the following must be defined as properties or members
-        self.port = None
-        self.baud_rate = 115200
-        self.serial_number = 1
-        self.max_waveform_voltage = 200.0
-        self.min_waveform_frequency = 0
-        self.max_waveform_frequency = 10e3
-        
-    # methods
-    def connect(self, serial_port, baud_rate):
-        pass
-    
-    def disconnect(self):
-        pass
-
-    def flash_firmware(self, hardware_version):
-        pass
-    
-    # these are currently mutators (but could be converted to properties)
-    def set_state_of_all_channels(self, state):
-        pass
-
-    def set_waveform_voltage(self, voltage):
-        pass
-    
-    def set_waveform_frequency(self, frequency):
-        pass
-    
-    # these are currently accessors (but could be converted to properties)
-    def connected(self):
-        return False
-    
-    def number_of_channels(self):
-        return 0
-    
-    def name(self):
-        return "OpenDrop"
-    
-    def host_software_version(self):
-        return "0.0.0"
-    
-    def software_version(self):
-        return "0.0.0"
-
-    def hardware_version(self):
-        return "0.0.0"
 
 
 class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
@@ -253,6 +200,7 @@ class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
                 logger.warning('Could not connect to control board on port %s.'
                                ' Checking other ports... [%s]' %
                                (app_values['serial_port'], why))
+                
                 self.control_board.connect(baud_rate=app_values['baud_rate'])
             app_values['serial_port'] = self.control_board.port
             self.set_app_values(app_values)
@@ -362,12 +310,12 @@ class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
                 assert(len(state) == max_channels)
 
             emit_signal("set_frequency",
-                        options.frequency,
+                        options['frequency'],
                         interface=IWaveformGenerator)
-            emit_signal("set_voltage", options.voltage,
+            emit_signal("set_voltage", options['voltage'],
                         interface=IWaveformGenerator)
 
-            self.control_board.state_of_all_channels = state
+            self.control_board.set_state_of_all_channels(state)
 
         # Turn off all electrodes if we're not in realtime mode and not
         # running a protocol.
