@@ -1,2 +1,2 @@
 serial_device
-wheeler.open-drop
+wheeler.open-drop>=0.2post10
