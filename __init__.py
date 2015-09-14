@@ -317,15 +317,6 @@ class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
 
             self.control_board.set_state_of_all_channels(state)
 
-        # Turn off all electrodes if we're not in realtime mode and not
-        # running a protocol.
-        elif (self.control_board.connected() and not app.realtime_mode and
-              not app.running):
-            logger.info('Turning off all electrodes.')
-            self.control_board.set_state_of_all_channels(
-                np.zeros(self.control_board.number_of_channels())
-            )
-
         # if a protocol is running, wait for the specified minimum duration
         if app.running:
             logger.debug('[OpenDropPlugin] on_step_run: '

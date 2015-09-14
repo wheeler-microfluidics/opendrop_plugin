@@ -15,8 +15,8 @@ HIGH = 1
 
 class OpenDropBoard(object):
     '''
-    This is a dummy class defining the API required to work with the OpenDrop
-    plugin.
+    This is a wrapper class for the open-drop proxy providing the API required
+    to work with the OpenDrop plugin.
     '''
     def __init__(self):
         self.serial_device = None
@@ -121,37 +121,41 @@ class OpenDropBoard(object):
 
     def hardware_version(self):
         # todo: query this from the device
-        return "0.0.0"
+        return "1.0.0"
 
     # these methods implement OpenDrop functionality through the base_node_rpc
     # API.
     # todo: move implementation to firmware 
     def set_gate(self, i, state):
-        logging.debug('[OpenDropBoard] set G%d %s'
+        logging.info('[OpenDropBoard] set G%d %s'
                       % (i, ['HIGH', 'LOW'][state < 1]))
+        logging.info('proxy.digital_write(%d, %s)'
+                      % (2 + i, ['HIGH', 'LOW'][state < 1]))
         self.proxy.digital_write(2 + i, state)
 
     def set_source(self, i, state):
-        logging.debug('[OpenDropBoard] set S%d %s'
+        logging.info('[OpenDropBoard] set S%d %s'
                       % (i, ['HIGH', 'LOW'][state < 1]))
-        self.proxy.digital_write(10 + i, state)    
+        logging.info('proxy.digital_write(%d, %s)'
+                      % (10 + i, ['HIGH', 'LOW'][state < 1]))
+        self.proxy.digital_write(10 + i, state)
 
     def clear_all_channels(self):
-        # set all gate pins high
+        # set all gate pins low
         for i in range(0, 9):
-            self.set_gate(i, HIGH)
+            self.set_gate(i, LOW)
 
-        # set all source pins low
+        # set all source pins high
         for i in range(1, 9):
-            self.set_source(i, LOW)
+            self.set_source(i, HIGH)
 
     def set_channel_state(self, channel, state):
         if channel < 2:
-            self.set_gate(0, state)
             self.set_source(2 * channel + 1, int(not bool(state)))
-        elif channel < 4:
             self.set_gate(0, state)
+        elif channel < 4:
             self.set_source(2 * channel + 2, int(not bool(state)))
+            self.set_gate(0, state)
         else:
-            self.set_gate((channel - 4) / 8 + 1, state)
             self.set_source((channel - 4) % 8 + 1, int(not bool(state)))
+            self.set_gate((channel - 4) / 8 + 1, state)
