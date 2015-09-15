@@ -108,16 +108,14 @@ class OpenDropBoard(object):
         return 68
     
     def name(self):
-        # todo: query this from the device
-        return "OpenDrop"
+        return self.proxy.properties()['name']
     
     def host_software_version(self):
         # todo: auto-generate based on git version 
         return "0.0.0"
     
     def software_version(self):
-        # todo: query this from the device
-        return "0.0.0"
+        return self.proxy.properties().software_version
 
     def hardware_version(self):
         # todo: query this from the device
