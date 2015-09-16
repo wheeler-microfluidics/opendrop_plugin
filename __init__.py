@@ -221,7 +221,7 @@ class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
         try:
             self.connect()
             name = self.control_board.name()
-            if name != "OpenDrop":
+            if name != "open_drop":
                 raise Exception("Device is not an OpenDrop")
 
             host_software_version = self.control_board.host_software_version()

@@ -1,5 +1,6 @@
 import time
 import logging
+import pkg_resources
 
 from open_drop import Proxy
 from serial import Serial
@@ -111,8 +112,7 @@ class OpenDropBoard(object):
         return self.proxy.properties()['name']
     
     def host_software_version(self):
-        # todo: auto-generate based on git version 
-        return "0.0.0"
+        return pkg_resources.get_distribution('open_drop').version
     
     def software_version(self):
         return self.proxy.properties().software_version
