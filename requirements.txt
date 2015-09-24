@@ -1,2 +1,2 @@
 serial_device
-open-drop>=0.2post16
+open-drop>=0.2post17
