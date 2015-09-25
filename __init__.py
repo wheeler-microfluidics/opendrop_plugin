@@ -49,7 +49,6 @@ from serial_device import SerialDevice, get_serial_ports
 
 from opendrop_board import OpenDropBoard
 
-
 # Ignore natural name warnings from PyTables [1].
 #
 # [1]: https://www.mail-archive.com/pytables-users@lists.sourceforge.net/msg01130.html
@@ -246,14 +245,16 @@ class OpenDropPlugin(Plugin, StepOptionsController, AppDataController):
             connected = self.control_board.connected()
             if not connected:
                 self.connect()
+            '''
             response = yesno("Save current control board configuration before "
                              "flashing?")
             if response == gtk.RESPONSE_YES:
                 self.save_config()
+            '''
             hardware_version = utility.Version.fromstring(
                 self.control_board.hardware_version()
             )
-            if not connected:
+            if connected:
                 self.control_board.disconnect()
             self.control_board.flash_firmware(hardware_version)
             app.main_window_controller.info("Firmware updated successfully.",

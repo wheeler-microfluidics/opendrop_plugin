@@ -2,10 +2,10 @@ import time
 import logging
 import pkg_resources
 
-from open_drop import Proxy
+from open_drop import Proxy, get_firmwares
 from serial import Serial
-
 from serial_device import get_serial_ports
+import arduino_helpers.upload
 
 
 INPUT = 0
@@ -31,17 +31,21 @@ class OpenDropBoard(object):
 
     @property
     def port(self):
-        try:
-            return self.serial_device.port
-        except:
-            return None
+        if self.connected():
+            try:
+                return self.serial_device.port
+            except:
+                pass
+        return None
     
     @property
     def baud_rate(self):
-        try:
-            return self.serial_device.baudrate
-        except:
-            return None
+        if self.connected():
+            try:
+                return self.serial_device.baudrate
+            except:
+                pass
+        return None
     
     @baud_rate.setter
     def baud_rate(self, value):
@@ -75,6 +79,7 @@ class OpenDropBoard(object):
 
     def disconnect(self):
         try:
+            self.proxy._packet_watcher.terminate()
             self.serial_device.close()
         except:
             pass
@@ -86,7 +91,8 @@ class OpenDropBoard(object):
             return False
 
     def flash_firmware(self, hardware_version):
-        pass
+        logging.info(arduino_helpers.upload.upload('uno',
+                     lambda b: get_firmwares()[b][0], self.port))
 
     # these are currently mutators (but could be converted to properties)
     def set_state_of_all_channels(self, state_array):
